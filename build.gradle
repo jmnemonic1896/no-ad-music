@@ -1,0 +1,7 @@
+defaultConfig {
+applicationId "com.noad.music.app"
+minSdkVersion 21
+targetSdkVersion 34
+versionCode 1
+versionName "1.0.0"
+}
