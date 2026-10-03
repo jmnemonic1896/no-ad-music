@@ -1,1 +1,45 @@
+version: 2.1
 
+executors:
+  flutter-executor:
+    docker:
+      - image: cimg/android:2023.12-node # Enthält bereits Android SDK & Java
+    working_directory: ~/project
+
+jobs:
+  build-aab:
+    executor: flutter-executor
+    steps:
+      - checkout
+
+      # 1. Flutter SDK installieren
+      - run:
+          name: Install Flutter SDK
+          command: |
+            git clone https://github.com/flutter/flutter.git -b stable ~/flutter
+            echo 'export PATH="$HOME/flutter/bin:$PATH"' >> $BASH_ENV
+            source $BASH_ENV
+
+      # 2. Abhängigkeiten herunterladen
+      - run:
+          name: Get Dependencies
+          command: |
+            source $BASH_ENV
+            flutter pub get
+
+      # 3. Android App Bundle (.aab) bauen
+      - run:
+          name: Build AAB
+          command: |
+            source $BASH_ENV
+            flutter build appbundle --release
+
+      # 4. Fertige .aab-Datei als Download bereitstellen
+      - store_artifacts:
+          path: build/app/outputs/bundle/release/app-release.aab
+          destination: app-release.aab
+
+workflows:
+  build-workflow:
+    jobs:
+      - build-aab
